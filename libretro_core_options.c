@@ -262,6 +262,221 @@ static struct retro_core_option_definition option_defs_us[] =
 /* RETRO_LANGUAGE_CHINESE_TRADITIONAL */
 
 /* RETRO_LANGUAGE_CHINESE_SIMPLIFIED */
+static struct retro_core_option_definition option_defs_chs[] =
+  {
+    {
+      "opera_bios",
+      "BIOS (rom1)",
+      "选择要使用的官方系统BIOS。只列出在RetroArch系统目录下存在的文件。",
+      {
+        { NULL, NULL }, /* This is set dynamically */
+      },
+      NULL
+    },
+    {
+      "opera_font",
+      "字体 (rom2)",
+      "选择要使用的官方字体ROM。某些日本游戏需要，其它游戏可选。只列出在RetroArch系统目录下存在的文件。",
+      {
+        { NULL, NULL }, /* This is set dynamically */
+      },
+      NULL
+    },
+    {
+      "opera_cpu_overclock",
+      "CPU超频",
+      "对3DO的12.5MHz ARM60 CPU进行超频。很多游戏可以大幅提高帧率（例如极品飞车），但是会增加性能要求，并且在有些情况下没有效果（或者造成问题）。",
+      {
+        { "1.0x (12.50Mhz)", NULL },
+        { "1.1x (13.75Mhz)", NULL },
+        { "1.2x (15.00Mhz)", NULL },
+        { "1.5x (18.75Mhz)", NULL },
+        { "1.6x (20.00Mhz)", NULL },
+        { "1.8x (22.50Mhz)", NULL },
+        { "2.0x (25.00Mhz)", NULL },
+        { NULL, NULL },
+      },
+      "1.0x (12.50Mhz)"
+    },
+    {
+      "opera_region",
+      "制式",
+      "选择分辨率和场频。注意：某些欧版游戏需要欧版ROM。",
+      {
+        { "ntsc", "NTSC 320x240@60" },
+        { "pal1", "PAL1 320x288@50" },
+        { "pal2", "PAL2 352x288@50" },
+        { NULL, NULL }
+      },
+      "ntsc"
+    },
+    {
+      "opera_vdlp_pixel_format",
+      "VDLP像素格式",
+      "选择运行时请求的像素格式，内部16bpp格式会转换成此格式。",
+      {
+        { "0RGB1555", NULL },
+        { "RGB565",   NULL },
+        { "XRGB8888", NULL }
+      },
+      "XRGB8888"
+    },
+    {
+      "opera_vdlp_bypass_clut",
+      "VDLP绕过CLUT",
+      "强制3DO VDLP绕过游戏的CLUT（色彩查询表）。可能引起不正确的色彩，但是渲染更快。",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL }
+      },
+      "disabled"
+    },
+    {
+      "opera_high_resolution",
+      "高分辨率CEL渲染",
+      "启用此选项使CEL以2倍分辨率渲染, 增加3D模型的精确度，对2D游戏无效。有很大的性能影响。",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL },
+      },
+      "disabled"
+    },
+    {
+      "opera_madam_matrix_engine",
+      "MADAM矩阵引擎",
+      "'MADAM'时3DO的图形加速器，它包含一个定制的数字协处理器，由CPU用来完成矩阵操作。这对应于以‘硬件’方式运行。\n"
+      "但是3DO同时有一个内建的ARM‘软件’版本的MADAM矩阵引擎。‘硬件’模式是缺省模式，但是发现某些游戏在强制使用‘软件’模式时运行更快（例如极品飞车）。",
+      {
+        { "hardware", "硬件" },
+        { "software", "软件" },
+        { NULL, NULL },
+      },
+      "hardware"
+    },
+    {
+      "opera_swi_hle",
+      "OperaOS SWI 高级模拟（HLE）",
+      "3DO游戏构建在Portfolio操作系统之上，Opera对某些特定操作系统功能有高级模拟（HLE)， 此HLE可以提高特定游戏的性能。",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL }
+      },
+      "disabled"
+    },
+#if THREADED_DSP
+    {
+      "opera_dsp_threaded",
+      "多线程DSP",
+      "在单独线程中运行DSP（音频处理器）。在多核系统上可以提高性能。！试验性功能！",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL },
+      },
+      "disabled"
+    },
+#endif
+    {
+      "opera_nvram_storage",
+      "NVRAM存储",
+      "选择NVRAM按游戏存储还是保存为单个文件，在所有游戏间共享。",
+      {
+        { "per game", "按游戏" },
+        { "shared",   "共享" },
+        { NULL, NULL },
+      },
+      "per game"
+    },
+    {
+      "opera_active_devices",
+      "活动输入设备",
+      "存在一个bug（可能是Opera本身的，但也可能是特定游戏的），使得多于一个的模拟控制器造成游戏忽略手柄输入。\n"
+      "把'活动输入设备'设为1可以临时解决这个问题。",
+      {
+        { "0", NULL },
+        { "1", NULL },
+        { "2", NULL },
+        { "3", NULL },
+        { "4", NULL },
+        { "5", NULL },
+        { "6", NULL },
+        { "7", NULL },
+        { "8", NULL },
+        { NULL, NULL },
+      },
+      "1"
+    },
+    {
+      "opera_hack_timing_1",
+      "Timing Hack 1 (Crash 'n Burn)",
+      "This must be enabled for correct operation of the game 'Crash 'n Burn'.",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL },
+      },
+      "disabled"
+    },
+    {
+      "opera_hack_timing_3",
+      "Timing Hack 3 (Dinopark Tycoon)",
+      "This must be enabled for correct operation of the game 'Dinopark Tycoon'.",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL },
+      },
+      "disabled"
+    },
+    {
+      "opera_hack_timing_5",
+      "Timing Hack 5 (Microcosm)",
+      "This must be enabled for correct operation of the game 'Microcosm'.",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL },
+      },
+      "disabled"
+    },
+    {
+      "opera_hack_timing_6",
+      "Timing Hack 6 (Alone in the Dark)",
+      "This must be enabled for correct operation of the game 'Alone in the Dark'.",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL },
+      },
+      "disabled"
+    },
+    {
+      "opera_hack_graphics_step_y",
+      "Graphics Step Y Hack (Samurai Showdown)",
+      "This must be enabled for backgrounds to render correctly when running the game 'Samurai Showdown'.",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL },
+      },
+      "disabled"
+    },
+    {
+      "opera_kprint",
+      "Debug Output",
+      "Print 3DO debug port output to stderr. Only really useful to 3DO homebrew developers.",
+      {
+        { "disabled", "禁用" },
+        { "enabled",  "启用" },
+        { NULL, NULL },
+      },
+      "disabled"
+    },
+    { NULL, NULL, NULL, {{0}}, NULL },
+  };
 
 /* RETRO_LANGUAGE_ESPERANTO */
 
@@ -294,7 +509,7 @@ static struct retro_core_option_definition *option_defs_intl[RETRO_LANGUAGE_LAST
   NULL,           /* RETRO_LANGUAGE_RUSSIAN */
   NULL,           /* RETRO_LANGUAGE_KOREAN */
   NULL,           /* RETRO_LANGUAGE_CHINESE_TRADITIONAL */
-  NULL,           /* RETRO_LANGUAGE_CHINESE_SIMPLIFIED */
+  option_defs_chs,/* RETRO_LANGUAGE_CHINESE_SIMPLIFIED */
   NULL,           /* RETRO_LANGUAGE_ESPERANTO */
   NULL,           /* RETRO_LANGUAGE_POLISH */
   NULL,           /* RETRO_LANGUAGE_VIETNAMESE */
