@@ -267,7 +267,7 @@ static struct retro_core_option_definition option_defs_chs[] =
     {
       "opera_bios",
       "BIOS (rom1)",
-      "Ñ¡ÔñÒªÊ¹ÓÃµÄ¹Ù·½ÏµÍ³BIOS¡£Ö»ÁĞ³öÔÚRetroArchÏµÍ³Ä¿Â¼ÏÂ´æÔÚµÄÎÄ¼ş¡£",
+      "é€‰æ‹©è¦ä½¿ç”¨çš„å®˜æ–¹ç³»ç»ŸBIOSã€‚åªåˆ—å‡ºåœ¨RetroArchç³»ç»Ÿç›®å½•ä¸‹å­˜åœ¨çš„æ–‡ä»¶ã€‚",
       {
         { NULL, NULL }, /* This is set dynamically */
       },
@@ -275,8 +275,9 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_font",
-      "×ÖÌå (rom2)",
-      "Ñ¡ÔñÒªÊ¹ÓÃµÄ¹Ù·½×ÖÌåROM¡£Ä³Ğ©ÈÕ±¾ÓÎÏ·ĞèÒª£¬ÆäËüÓÎÏ·¿ÉÑ¡¡£Ö»ÁĞ³öÔÚRetroArchÏµÍ³Ä¿Â¼ÏÂ´æÔÚµÄÎÄ¼ş¡£",
+      "å­—ä½“ (rom2)",
+      "é€‰æ‹©è¦ä½¿ç”¨çš„å®˜æ–¹å­—ä½“ROMã€‚æŸäº›æ—¥æœ¬æ¸¸æˆéœ€è¦ï¼Œå…¶å®ƒæ¸¸æˆå¯é€‰ã€‚\n"
+      "åªåˆ—å‡ºåœ¨RetroArchç³»ç»Ÿç›®å½•ä¸‹å­˜åœ¨çš„æ–‡ä»¶ã€‚",
       {
         { NULL, NULL }, /* This is set dynamically */
       },
@@ -284,8 +285,10 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_cpu_overclock",
-      "CPU³¬Æµ",
-      "¶Ô3DOµÄ12.5MHz ARM60 CPU½øĞĞ³¬Æµ¡£ºÜ¶àÓÎÏ·¿ÉÒÔ´ó·ùÌá¸ßÖ¡ÂÊ£¨ÀıÈç¼«Æ··É³µ£©£¬µ«ÊÇ»áÔö¼ÓĞÔÄÜÒªÇó£¬²¢ÇÒÔÚÓĞĞ©Çé¿öÏÂÃ»ÓĞĞ§¹û£¨»òÕßÔì³ÉÎÊÌâ£©¡£",
+      "CPUè¶…é¢‘",
+      "å¯¹3DOçš„12.5MHz ARM60 CPUè¿›è¡Œè¶…é¢‘ã€‚\n"
+      "å¾ˆå¤šæ¸¸æˆå¯ä»¥å¤§å¹…æé«˜å¸§ç‡ï¼ˆä¾‹å¦‚æå“é£è½¦ï¼‰ï¼Œä½†æ˜¯ä¼šå¢åŠ æ€§èƒ½è¦æ±‚ï¼Œ\n"
+      "å¹¶ä¸”åœ¨æœ‰äº›æƒ…å†µä¸‹æ²¡æœ‰æ•ˆæœï¼ˆæˆ–è€…é€ æˆé—®é¢˜ï¼‰ã€‚",
       {
         { "1.0x (12.50Mhz)", NULL },
         { "1.1x (13.75Mhz)", NULL },
@@ -300,8 +303,8 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_region",
-      "ÖÆÊ½",
-      "Ñ¡Ôñ·Ö±æÂÊºÍ³¡Æµ¡£×¢Òâ£ºÄ³Ğ©Å·°æÓÎÏ·ĞèÒªÅ·°æROM¡£",
+      "åˆ¶å¼",
+      "é€‰æ‹©åˆ†è¾¨ç‡å’Œåœºé¢‘ã€‚æ³¨æ„ï¼šæŸäº›æ¬§ç‰ˆæ¸¸æˆéœ€è¦æ¬§ç‰ˆROMã€‚",
       {
         { "ntsc", "NTSC 320x240@60" },
         { "pal1", "PAL1 320x288@50" },
@@ -312,8 +315,8 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_vdlp_pixel_format",
-      "VDLPÏñËØ¸ñÊ½",
-      "Ñ¡ÔñÔËĞĞÊ±ÇëÇóµÄÏñËØ¸ñÊ½£¬ÄÚ²¿16bpp¸ñÊ½»á×ª»»³É´Ë¸ñÊ½¡£",
+      "VDLPåƒç´ æ ¼å¼",
+      "é€‰æ‹©è¿è¡Œæ—¶è¯·æ±‚çš„åƒç´ æ ¼å¼ï¼Œå†…éƒ¨16bppæ ¼å¼ä¼šè½¬æ¢æˆæ­¤æ ¼å¼ã€‚",
       {
         { "0RGB1555", NULL },
         { "RGB565",   NULL },
@@ -323,45 +326,48 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_vdlp_bypass_clut",
-      "VDLPÈÆ¹ıCLUT",
-      "Ç¿ÖÆ3DO VDLPÈÆ¹ıÓÎÏ·µÄCLUT£¨É«²Ê²éÑ¯±í£©¡£¿ÉÄÜÒıÆğ²»ÕıÈ·µÄÉ«²Ê£¬µ«ÊÇäÖÈ¾¸ü¿ì¡£",
+      "VDLPç»•è¿‡CLUT",
+      "å¼ºåˆ¶3DO VDLPç»•è¿‡æ¸¸æˆçš„CLUTï¼ˆè‰²å½©æŸ¥è¯¢è¡¨ï¼‰ã€‚\n"
+      "å¯èƒ½å¼•èµ·ä¸æ­£ç¡®çš„è‰²å½©ï¼Œä½†æ˜¯æ¸²æŸ“æ›´å¿«ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL }
       },
       "disabled"
     },
     {
       "opera_high_resolution",
-      "¸ß·Ö±æÂÊCELäÖÈ¾",
-      "ÆôÓÃ´ËÑ¡ÏîÊ¹CELÒÔ2±¶·Ö±æÂÊäÖÈ¾, Ôö¼Ó3DÄ£ĞÍµÄ¾«È·¶È£¬¶Ô2DÓÎÏ·ÎŞĞ§¡£ÓĞºÜ´óµÄĞÔÄÜÓ°Ïì¡£",
+      "é«˜åˆ†è¾¨ç‡CELæ¸²æŸ“",
+      "å¯ç”¨æ­¤é€‰é¡¹ä½¿CELä»¥2å€åˆ†è¾¨ç‡æ¸²æŸ“, å¢åŠ 3Dæ¨¡å‹çš„ç²¾ç¡®åº¦ï¼Œå¯¹2Dæ¸¸æˆæ— æ•ˆã€‚æœ‰å¾ˆå¤§çš„æ€§èƒ½å½±å“ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL },
       },
       "disabled"
     },
     {
       "opera_madam_matrix_engine",
-      "MADAM¾ØÕóÒıÇæ",
-      "'MADAM'Ê±3DOµÄÍ¼ĞÎ¼ÓËÙÆ÷£¬Ëü°üº¬Ò»¸ö¶¨ÖÆµÄÊı×ÖĞ­´¦ÀíÆ÷£¬ÓÉCPUÓÃÀ´Íê³É¾ØÕó²Ù×÷¡£Õâ¶ÔÓ¦ÓÚÒÔ¡®Ó²¼ş¡¯·½Ê½ÔËĞĞ¡£\n"
-      "µ«ÊÇ3DOÍ¬Ê±ÓĞÒ»¸öÄÚ½¨µÄARM¡®Èí¼ş¡¯°æ±¾µÄMADAM¾ØÕóÒıÇæ¡£¡®Ó²¼ş¡¯Ä£Ê½ÊÇÈ±Ê¡Ä£Ê½£¬µ«ÊÇ·¢ÏÖÄ³Ğ©ÓÎÏ·ÔÚÇ¿ÖÆÊ¹ÓÃ¡®Èí¼ş¡¯Ä£Ê½Ê±ÔËĞĞ¸ü¿ì£¨ÀıÈç¼«Æ··É³µ£©¡£",
+      "MADAMçŸ©é˜µå¼•æ“",
+      "'MADAM'æ—¶3DOçš„å›¾å½¢åŠ é€Ÿå™¨ï¼Œå®ƒåŒ…å«ä¸€ä¸ªå®šåˆ¶çš„æ•°å­—åå¤„ç†å™¨ï¼Œç”±CPUç”¨æ¥å®ŒæˆçŸ©é˜µæ“ä½œï¼Œ\n"
+      "è¿™å¯¹åº”äºä»¥â€˜ç¡¬ä»¶â€™æ–¹å¼è¿è¡Œã€‚ä½†æ˜¯3DOåŒæ—¶æœ‰ä¸€ä¸ªå†…å»ºçš„ARMâ€˜è½¯ä»¶â€™ç‰ˆæœ¬çš„MADAMçŸ©é˜µå¼•æ“ã€‚\n"
+      "â€˜ç¡¬ä»¶â€™æ¨¡å¼æ˜¯ç¼ºçœæ¨¡å¼ï¼Œä½†æ˜¯å‘ç°æŸäº›æ¸¸æˆåœ¨å¼ºåˆ¶ä½¿ç”¨â€˜è½¯ä»¶â€™æ¨¡å¼æ—¶è¿è¡Œæ›´å¿«ï¼ˆä¾‹å¦‚æå“é£è½¦ï¼‰ã€‚",
       {
-        { "hardware", "Ó²¼ş" },
-        { "software", "Èí¼ş" },
+        { "hardware", "ç¡¬ä»¶" },
+        { "software", "è½¯ä»¶" },
         { NULL, NULL },
       },
       "hardware"
     },
     {
       "opera_swi_hle",
-      "OperaOS SWI ¸ß¼¶Ä£Äâ£¨HLE£©",
-      "3DOÓÎÏ·¹¹½¨ÔÚPortfolio²Ù×÷ÏµÍ³Ö®ÉÏ£¬Opera¶ÔÄ³Ğ©ÌØ¶¨²Ù×÷ÏµÍ³¹¦ÄÜÓĞ¸ß¼¶Ä£Äâ£¨HLE)£¬ ´ËHLE¿ÉÒÔÌá¸ßÌØ¶¨ÓÎÏ·µÄĞÔÄÜ¡£",
+      "OperaOS SWIé«˜çº§æ¨¡æ‹Ÿï¼ˆHLEï¼‰",
+      "3DOæ¸¸æˆæ„å»ºåœ¨Portfolioæ“ä½œç³»ç»Ÿä¹‹ä¸Šï¼ŒOperaå®ç°äº†æœ‰äº›æ“ä½œç³»ç»ŸåŠŸèƒ½çš„é«˜çº§æ¨¡æ‹Ÿï¼ˆHLE)ï¼Œ \n"
+      "æ­¤HLEå¯ä»¥æé«˜ç‰¹å®šæ¸¸æˆçš„æ€§èƒ½ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL }
       },
       "disabled"
@@ -369,11 +375,11 @@ static struct retro_core_option_definition option_defs_chs[] =
 #if THREADED_DSP
     {
       "opera_dsp_threaded",
-      "¶àÏß³ÌDSP",
-      "ÔÚµ¥¶ÀÏß³ÌÖĞÔËĞĞDSP£¨ÒôÆµ´¦ÀíÆ÷£©¡£ÔÚ¶àºËÏµÍ³ÉÏ¿ÉÒÔÌá¸ßĞÔÄÜ¡££¡ÊÔÑéĞÔ¹¦ÄÜ£¡",
+      "å¤šçº¿ç¨‹DSP",
+      "åœ¨å•ç‹¬çº¿ç¨‹ä¸­è¿è¡ŒDSPï¼ˆéŸ³é¢‘å¤„ç†å™¨ï¼‰ã€‚åœ¨å¤šæ ¸ç³»ç»Ÿä¸Šå¯ä»¥æé«˜æ€§èƒ½ã€‚ï¼è¯•éªŒæ€§åŠŸèƒ½ï¼",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL },
       },
       "disabled"
@@ -381,20 +387,20 @@ static struct retro_core_option_definition option_defs_chs[] =
 #endif
     {
       "opera_nvram_storage",
-      "NVRAM´æ´¢",
-      "Ñ¡ÔñNVRAM°´ÓÎÏ·´æ´¢»¹ÊÇ±£´æÎªµ¥¸öÎÄ¼ş£¬ÔÚËùÓĞÓÎÏ·¼ä¹²Ïí¡£",
+      "NVRAMå­˜å‚¨",
+      "é€‰æ‹©NVRAMæŒ‰æ¸¸æˆå­˜å‚¨è¿˜æ˜¯ä¿å­˜ä¸ºå•ä¸ªæ–‡ä»¶ï¼Œåœ¨æ‰€æœ‰æ¸¸æˆé—´å…±äº«ã€‚",
       {
-        { "per game", "°´ÓÎÏ·" },
-        { "shared",   "¹²Ïí" },
+        { "per game", "æŒ‰æ¸¸æˆ" },
+        { "shared",   "å…±äº«" },
         { NULL, NULL },
       },
       "per game"
     },
     {
       "opera_active_devices",
-      "»î¶¯ÊäÈëÉè±¸",
-      "´æÔÚÒ»¸öbug£¨¿ÉÄÜÊÇOpera±¾ÉíµÄ£¬µ«Ò²¿ÉÄÜÊÇÌØ¶¨ÓÎÏ·µÄ£©£¬Ê¹µÃ¶àÓÚÒ»¸öµÄÄ£Äâ¿ØÖÆÆ÷Ôì³ÉÓÎÏ·ºöÂÔÊÖ±úÊäÈë¡£\n"
-      "°Ñ'»î¶¯ÊäÈëÉè±¸'ÉèÎª1¿ÉÒÔÁÙÊ±½â¾öÕâ¸öÎÊÌâ¡£",
+      "æ´»åŠ¨è¾“å…¥è®¾å¤‡",
+      "å­˜åœ¨ä¸€ä¸ªbugï¼ˆå¯èƒ½æ˜¯Operaæœ¬èº«çš„ï¼Œä½†ä¹Ÿå¯èƒ½æ˜¯ç‰¹å®šæ¸¸æˆçš„ï¼‰ï¼Œä½¿å¾—å¤šäºä¸€ä¸ªçš„æ¨¡æ‹Ÿæ§åˆ¶å™¨é€ æˆæ¸¸æˆå¿½ç•¥æ‰‹æŸ„è¾“å…¥ã€‚\n"
+      "æŠŠ'æ´»åŠ¨è¾“å…¥è®¾å¤‡'è®¾ä¸º1å¯ä»¥ä¸´æ—¶è§£å†³è¿™ä¸ªé—®é¢˜ã€‚",
       {
         { "0", NULL },
         { "1", NULL },
@@ -411,66 +417,66 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_hack_timing_1",
-      "Timing Hack 1 (Crash 'n Burn)",
-      "This must be enabled for correct operation of the game 'Crash 'n Burn'.",
+      "æ—¶åºä¿®æ­£ 1 (Crash 'n Burn)",
+      "æ­¤é¡¹æ˜¯ä½¿æ¸¸æˆ'Crash 'n Burn'èƒ½æ­£ç¡®è¿è¡Œçš„ç‰¹æ®Šå¤„ç†ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL },
       },
       "disabled"
     },
     {
       "opera_hack_timing_3",
-      "Timing Hack 3 (Dinopark Tycoon)",
-      "This must be enabled for correct operation of the game 'Dinopark Tycoon'.",
+      "æ—¶åºä¿®æ­£ 3 (Dinopark Tycoon)",
+      "æ­¤é¡¹æ˜¯ä½¿æ¸¸æˆ'Dinopark Tycoon'èƒ½æ­£ç¡®è¿è¡Œçš„ç‰¹æ®Šå¤„ç†ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL },
       },
       "disabled"
     },
     {
       "opera_hack_timing_5",
-      "Timing Hack 5 (Microcosm)",
-      "This must be enabled for correct operation of the game 'Microcosm'.",
+      "æ—¶åºä¿®æ­£ 5 (Microcosm)",
+      "æ­¤é¡¹æ˜¯ä½¿æ¸¸æˆ'Microcosm'èƒ½æ­£ç¡®è¿è¡Œçš„ç‰¹æ®Šå¤„ç†ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL },
       },
       "disabled"
     },
     {
       "opera_hack_timing_6",
-      "Timing Hack 6 (Alone in the Dark)",
-      "This must be enabled for correct operation of the game 'Alone in the Dark'.",
+      "æ—¶åºä¿®æ­£ 6 (Alone in the Dark)",
+      "æ­¤é¡¹æ˜¯ä½¿æ¸¸æˆ'Alone in the Dark'èƒ½æ­£ç¡®è¿è¡Œçš„ç‰¹æ®Šå¤„ç†ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL },
       },
       "disabled"
     },
     {
       "opera_hack_graphics_step_y",
-      "Graphics Step Y Hack (Samurai Showdown)",
-      "This must be enabled for backgrounds to render correctly when running the game 'Samurai Showdown'.",
+      "å›¾åƒYæ­¥è¿›ä¿®æ­£ (Samurai Showdown)",
+      "æ­¤é¡¹æ˜¯ä½¿æ¸¸æˆ'Samurai Showdown'èƒŒæ™¯èƒ½æ­£ç¡®æ¸²æŸ“çš„ç‰¹æ®Šå¤„ç†ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL },
       },
       "disabled"
     },
     {
       "opera_kprint",
-      "Debug Output",
-      "Print 3DO debug port output to stderr. Only really useful to 3DO homebrew developers.",
+      "è°ƒè¯•ä¿¡æ¯è¾“å‡º",
+      "è¾“å‡º3DOè°ƒè¯•ä¿¡æ¯åˆ°stderrï¼Œè¿™åªå¯¹äº3DOè‡ªåˆ¶ç¨‹åºå¼€å‘è€…å¾ˆæœ‰ç”¨ã€‚",
       {
-        { "disabled", "½ûÓÃ" },
-        { "enabled",  "ÆôÓÃ" },
+        { "disabled", "ç¦ç”¨" },
+        { "enabled",  "å¯ç”¨" },
         { NULL, NULL },
       },
       "disabled"
