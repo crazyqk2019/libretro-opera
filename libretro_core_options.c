@@ -276,7 +276,7 @@ static struct retro_core_option_definition option_defs_chs[] =
     {
       "opera_font",
       "字体 (rom2)",
-      "选择要使用的官方字体ROM。某些日本游戏需要，其它游戏可选。\n"
+      "选择要使用的官方字体ROM。某些日版游戏需要，其它游戏可选。\n"
       "只列出在RetroArch系统目录下存在的文件。",
       {
         { NULL, NULL }, /* This is set dynamically */
@@ -417,7 +417,7 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_hack_timing_1",
-      "时序修正 1 (Crash 'n Burn)",
+      "时序修正1 (Crash 'n Burn)",
       "此项是使游戏'Crash 'n Burn'能正确运行的特殊处理。",
       {
         { "disabled", "禁用" },
@@ -428,7 +428,7 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_hack_timing_3",
-      "时序修正 3 (Dinopark Tycoon)",
+      "时序修正3 (Dinopark Tycoon)",
       "此项是使游戏'Dinopark Tycoon'能正确运行的特殊处理。",
       {
         { "disabled", "禁用" },
@@ -439,7 +439,7 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_hack_timing_5",
-      "时序修正 5 (Microcosm)",
+      "时序修正5 (Microcosm)",
       "此项是使游戏'Microcosm'能正确运行的特殊处理。",
       {
         { "disabled", "禁用" },
