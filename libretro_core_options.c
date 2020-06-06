@@ -287,7 +287,7 @@ static struct retro_core_option_definition option_defs_chs[] =
       "opera_cpu_overclock",
       "CPU超频",
       "对3DO的12.5MHz ARM60 CPU进行超频。\n"
-      "很多游戏可以大幅提高帧率（例如极品飞车），但是会增加性能要求，\n"
+      "很多游戏可以大幅提高帧率（例如极品飞车），但是会增加对系统的性能要求，\n"
       "并且在有些情况下没有效果（或者造成问题）。",
       {
         { "1.0x (12.50Mhz)", NULL },
@@ -339,7 +339,8 @@ static struct retro_core_option_definition option_defs_chs[] =
     {
       "opera_high_resolution",
       "高分辨率CEL渲染",
-      "启用此选项使CEL以2倍分辨率渲染, 增加3D模型的精确度，对2D游戏无效。有很大的性能影响。",
+      "启用此选项使CEL以2倍分辨率渲染, 增加3D模型的精确度，对2D游戏无效。\n"
+	  "对性能有很大的影响。",
       {
         { "disabled", "禁用" },
         { "enabled",  "启用" },
@@ -399,7 +400,8 @@ static struct retro_core_option_definition option_defs_chs[] =
     {
       "opera_active_devices",
       "活动输入设备",
-      "存在一个bug（可能是Opera本身的，但也可能是特定游戏的），使得多于一个的模拟控制器造成游戏忽略手柄输入。\n"
+      "存在一个bug（可能是Opera本身的，但也可能是特定游戏的），\n"
+	  "可能使多于一个的模拟控制器造成游戏忽略手柄输入。\n"
       "把'活动输入设备'设为1可以临时解决这个问题。",
       {
         { "0", NULL },
@@ -450,7 +452,7 @@ static struct retro_core_option_definition option_defs_chs[] =
     },
     {
       "opera_hack_timing_6",
-      "时序修正 6 (Alone in the Dark)",
+      "时序修正6 (Alone in the Dark)",
       "此项是使游戏'Alone in the Dark'能正确运行的特殊处理。",
       {
         { "disabled", "禁用" },
