@@ -54,9 +54,16 @@ ifneq (,$(findstring unix,$(platform)))
 
     TARGET := $(TARGET_NAME)_libretro.so
     fpic := -fPIC
-    SHARED := -lpthread -lm -shared -Wl,--no-undefined -Wl,--version-script=link.T
+    ifneq ($(findstring SunOS,$(shell uname -s)),)
+        SHARED := -shared -lpthread -lm -z defs
+    else
+        SHARED := -lpthread -lm -shared -Wl,--no-undefined -Wl,--version-script=link.T
+        ifneq ($(findstring Linux,$(shell uname -s)),)
+            HAVE_CDROM = 1
+        endif
+    endif
+
     THREADED_DSP = 1
-	 HAVE_CDROM = 1
 
     # Raspberry Pi
     ifneq (,$(findstring rpi,$(platform)))
