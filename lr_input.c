@@ -1,7 +1,7 @@
 #include "lr_input.h"
 #include "lr_input_crosshair.h"
 
-#include "retro_callbacks.h"
+#include "opera_lr_callbacks.h"
 
 #include <libopera/opera_pbus.h>
 
@@ -149,6 +149,12 @@ lr_input_poll_lightgun(const int port_)
   lg.trigger = poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_TRIGGER);
   lg.option  = poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_SELECT);
   lg.reload  = poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_RELOAD);
+            
+  if(poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN))
+  {
+    lg.trigger = 0;
+    lg.reload  = poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) || poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_RELOAD);
+  }
 
   lr_input_crosshair_set(port_,lg.x,lg.y);
 
@@ -168,6 +174,12 @@ lr_input_poll_arcade_lightgun(const int port_)
   lg.coins   = poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_SELECT);
   lg.start   = poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_START);
   lg.holster = poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_RELOAD);
+            
+  if(poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN))
+  {
+    lg.trigger = 0;
+    lg.holster = poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) || poll_lightgun(port_,RETRO_DEVICE_ID_LIGHTGUN_RELOAD);
+  }
 
   lr_input_crosshair_set(port_,lg.x,lg.y);
 

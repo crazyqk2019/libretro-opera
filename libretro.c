@@ -1,3 +1,18 @@
+#include "file/file_path.h"
+#include "libretro.h"
+#include "libretro_core_options.h"
+#include "retro_miscellaneous.h"
+#include "streams/file_stream.h"
+
+#include "lr_input.h"
+#include "lr_input_crosshair.h"
+#include "lr_input_descs.h"
+#include "opera_lr_callbacks.h"
+#include "opera_lr_dsp.h"
+#include "opera_lr_nvram.h"
+#include "opera_lr_opts.h"
+#include "retro_cdimage.h"
+
 #include "libopera/hack_flags.h"
 #include "libopera/opera_3do.h"
 #include "libopera/opera_arm.h"
@@ -5,53 +20,33 @@
 #include "libopera/opera_cdrom.h"
 #include "libopera/opera_clock.h"
 #include "libopera/opera_core.h"
+#include "libopera/opera_log.h"
 #include "libopera/opera_madam.h"
+#include "libopera/opera_mem.h"
+#include "libopera/opera_nvram.h"
 #include "libopera/opera_pbus.h"
 #include "libopera/opera_region.h"
 #include "libopera/opera_vdlp.h"
-
-#include "lr_dsp.h"
-#include "lr_input.h"
-#include "lr_input_crosshair.h"
-#include "lr_input_descs.h"
-#include "nvram.h"
-#include "retro_callbacks.h"
-#include "retro_cdimage.h"
-
-#include <file/file_path.h>
-#include <libretro.h>
-#include <libretro_core_options.h>
-#include <retro_miscellaneous.h>
-#include <streams/file_stream.h>
+#include "libopera/prng16.h"
+#include "libopera/prng32.h"
 
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define CDIMAGE_SECTOR_SIZE 2048
 
-static cdimage_t            CDIMAGE;
-static uint32_t             CDIMAGE_SECTOR;
-static uint32_t            *g_VIDEO_BUFFER;
-static uint32_t             g_VIDEO_WIDTH;
-static uint32_t             g_VIDEO_HEIGHT;
-static uint32_t             g_VIDEO_PITCH_SHIFT;
-static uint32_t             ACTIVE_DEVICES;
-static int                  g_PIXEL_FORMAT_SET  = false;
-static vdlp_pixel_format_e  g_VDLP_PIXEL_FORMAT = VDLP_PIXEL_FORMAT_XRGB8888;
-static uint32_t             g_VDLP_FLAGS        = VDLP_FLAG_NONE;
-static const opera_bios_t *BIOS = NULL;
-static const opera_bios_t *FONT = NULL;
+static cdimage_t  CDIMAGE;
+static uint32_t   CDIMAGE_SECTOR;
+static char      *g_GAME_INFO_PATH = NULL;
 
 static
 void
 retro_environment_set_support_no_game(void)
 {
-  bool support_no_game;
-
-  support_no_game = true;
+  bool support_no_game = true;
 
   retro_environment_cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME,&support_no_game);
 }
@@ -62,35 +57,49 @@ retro_environment_set_controller_info(void)
 {
   static const struct retro_controller_description port[] =
     {
-      { "3DO Joypad",        RETRO_DEVICE_JOYPAD },
-      { "3DO Flightstick",   RETRO_DEVICE_FLIGHTSTICK },
-      { "3DO Mouse",         RETRO_DEVICE_MOUSE  },
-      { "3DO Lightgun",      RETRO_DEVICE_LIGHTGUN },
-      { "Arcade Lightgun",   RETRO_DEVICE_ARCADE_LIGHTGUN },
-      { "Orbatak Trackball", RETRO_DEVICE_ORBATAK_TRACKBALL },
+     { "3DO Joypad",        RETRO_DEVICE_JOYPAD },
+     { "3DO Flightstick",   RETRO_DEVICE_FLIGHTSTICK },
+     { "3DO Mouse",         RETRO_DEVICE_MOUSE  },
+     { "3DO Lightgun",      RETRO_DEVICE_LIGHTGUN },
+     { "Arcade Lightgun",   RETRO_DEVICE_ARCADE_LIGHTGUN },
+     { "Orbatak Trackball", RETRO_DEVICE_ORBATAK_TRACKBALL },
     };
 
   static const struct retro_controller_info ports[LR_INPUT_MAX_DEVICES+1] =
     {
-      {port, 6},
-      {port, 6},
-      {port, 6},
-      {port, 6},
-      {port, 6},
-      {port, 6},
-      {port, 6},
-      {port, 6},
-      {NULL, 0}
+     {port, 6},
+     {port, 6},
+     {port, 6},
+     {port, 6},
+     {port, 6},
+     {port, 6},
+     {port, 6},
+     {port, 6},
+     {NULL, 0}
     };
 
   retro_environment_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO,(void*)ports);
 }
 
+static
+void
+retro_vfs_initialize(void)
+{
+  struct retro_vfs_interface_info vfs_info;
+
+  vfs_info.required_interface_version = 1;
+  vfs_info.iface                      = NULL;
+
+  if(retro_environment_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE,&vfs_info))
+    filestream_vfs_init(&vfs_info);
+}
+
 void
 retro_set_environment(retro_environment_t cb_)
 {
-  retro_set_environment_cb(cb_);
+  opera_lr_callbacks_set_environment(cb_);
 
+  retro_vfs_initialize();
   retro_environment_set_controller_info();
   libretro_init_core_options();
   libretro_set_core_options();
@@ -100,52 +109,31 @@ retro_set_environment(retro_environment_t cb_)
 void
 retro_set_video_refresh(retro_video_refresh_t cb_)
 {
-  retro_set_video_refresh_cb(cb_);
+  opera_lr_callbacks_set_video_refresh(cb_);
 }
 
 void
 retro_set_audio_sample(retro_audio_sample_t cb_)
 {
-  retro_set_audio_sample_cb(cb_);
+  opera_lr_callbacks_set_audio_sample(cb_);
 }
 
 void
 retro_set_audio_sample_batch(retro_audio_sample_batch_t cb_)
 {
-  retro_set_audio_sample_batch_cb(cb_);
+  opera_lr_callbacks_set_audio_sample_batch(cb_);
 }
 
 void
 retro_set_input_poll(retro_input_poll_t cb_)
 {
-  retro_set_input_poll_cb(cb_);
+  opera_lr_callbacks_set_input_poll(cb_);
 }
 
 void
 retro_set_input_state(retro_input_state_t cb_)
 {
-  retro_set_input_state_cb(cb_);
-}
-
-static
-void
-video_init(void)
-{
-  uint32_t size;
-
-  /* The 4x multiplication is for hires mode */
-  size = (opera_region_max_width() * opera_region_max_height() * 4);
-  if(g_VIDEO_BUFFER == NULL)
-    g_VIDEO_BUFFER = (uint32_t*)calloc(size,sizeof(uint32_t));
-}
-
-static
-void
-video_destroy(void)
-{
-  if(g_VIDEO_BUFFER != NULL)
-    free(g_VIDEO_BUFFER);
-  g_VIDEO_BUFFER = NULL;
+  opera_lr_callbacks_set_input_state(cb_);
 }
 
 static
@@ -172,12 +160,12 @@ cdimage_read_sector(void *buf_)
 static
 void*
 libopera_callback(int   cmd_,
-                   void *data_)
+                  void *data_)
 {
   switch(cmd_)
     {
     case EXT_DSP_TRIGGER:
-      lr_dsp_process();
+      opera_lr_dsp_process();
       break;
     default:
       break;
@@ -210,30 +198,39 @@ bool
 retro_serialize(void   *data_,
                 size_t  size_)
 {
-  if(size_ != opera_3do_state_size())
-    return false;
+  uint32_t size;
 
-  opera_3do_state_save(data_);
+  size = opera_3do_state_save(data_,size_);
 
-  return true;
+  return (size == size_);
 }
 
 bool
-retro_unserialize(const void *data_,
+retro_unserialize(void const *data_,
                   size_t      size_)
 {
-  if(size_ != opera_3do_state_size())
+  uint32_t size;
+  void *backup_state;
+
+  backup_state = malloc(retro_serialize_size());
+  if(backup_state == NULL)
     return false;
+  size = retro_serialize(backup_state,retro_serialize_size());
+  if(size)
+    {
+      size = opera_3do_state_load(data_,size_);
+      if(size != size_)
+        opera_3do_state_load(backup_state,retro_serialize_size());
+    }
 
-  opera_3do_state_load(data_);
+  free(backup_state);
 
-  return true;
+  return (size == size_);
 }
 
 void
 retro_cheat_reset(void)
 {
-
 }
 
 void
@@ -241,313 +238,6 @@ retro_cheat_set(unsigned    index_,
                 bool        enabled_,
                 const char *code_)
 {
-  (void)index_;
-  (void)enabled_;
-  (void)code_;
-}
-
-static
-int
-retro_getenv(struct retro_variable *var_)
-{
-  return retro_environment_cb(RETRO_ENVIRONMENT_GET_VARIABLE,var_);
-}
-
-static
-const
-char*
-chkopt_getval(const char *key_)
-{
-  int rv;
-  char key[64];
-  struct retro_variable var;
-
-  strncpy(key,"4do_",(sizeof(key)-1));
-  strncat(key,key_,(sizeof(key)-1));
-  var.key = key;
-  var.value = NULL;
-  rv = retro_getenv(&var);
-  if(rv && (var.value != NULL))
-    return var.value;
-
-  strncpy(key,"opera_",(sizeof(key)-1));
-  strncat(key,key_,(sizeof(key)-1));
-  var.key = key;
-  var.value = NULL;
-  rv = retro_getenv(&var);
-  if(rv && (var.value != NULL))
-    return var.value;
-
-  return NULL;
-}
-
-static
-bool
-chkopt_is_enabled(const char *key_)
-{
-  const char *val;
-
-  val = chkopt_getval(key_);
-  if(val == NULL)
-    return false;
-
-  return (strcmp(val,"enabled") == 0);
-}
-
-static
-void
-chkopt_set_reset_bits(const char *key_,
-                      uint32_t   *input_,
-                      uint32_t    bitmask_)
-{
-  *input_ = (chkopt_is_enabled(key_) ?
-             (*input_ | bitmask_) :
-             (*input_ & ~bitmask_));
-}
-
-static
-void
-chkopt_bios(void)
-{
-  const char *val;
-  const opera_bios_t *bios;
-
-  BIOS = opera_bios_end();
-  val  = chkopt_getval("bios");
-  if(val == NULL)
-    return;
-
-  for(bios = opera_bios_begin(); bios != opera_bios_end(); bios++)
-    {
-      if(strcmp(bios->name,val))
-        continue;
-
-      BIOS = bios;
-      return;
-    }
-}
-
-static
-void
-chkopt_font(void)
-{
-  const char *val;
-  const opera_bios_t *font;
-
-  FONT = opera_bios_font_end();
-  val  = chkopt_getval("font");
-  if(val == NULL)
-    return;
-
-  for(font = opera_bios_font_begin(); font != opera_bios_font_end(); font++)
-    {
-      if(strcmp(font->name,val))
-        continue;
-
-      FONT = font;
-      return;
-    }
-}
-
-static
-void
-chkopt_region(void)
-{
-  const char *val;
-
-  val = chkopt_getval("region");
-  if(val == NULL)
-    return;
-
-  if(!strcmp(val,"ntsc"))
-    opera_region_set_NTSC();
-  else if(!strcmp(val,"pal1"))
-    opera_region_set_PAL1();
-  else if(!strcmp(val,"pal2"))
-    opera_region_set_PAL2();
-}
-
-static
-void
-chkopt_high_resolution(void)
-{
-  bool rv;
-
-  rv = chkopt_is_enabled("high_resolution");
-  if(rv)
-    {
-      HIRESMODE       = 1;
-      g_VIDEO_WIDTH   = (opera_region_width()  << 1);
-      g_VIDEO_HEIGHT  = (opera_region_height() << 1);
-      g_VDLP_FLAGS   |= VDLP_FLAG_HIRES_CEL;
-    }
-  else
-    {
-      HIRESMODE       = 0;
-      g_VIDEO_WIDTH   = opera_region_width();
-      g_VIDEO_HEIGHT  = opera_region_height();
-      g_VDLP_FLAGS   &= ~VDLP_FLAG_HIRES_CEL;
-    }
-}
-
-static
-void
-chkopt_cpu_overclock(void)
-{
-  float mul;
-  const char *val;
-
-  val = chkopt_getval("cpu_overclock");
-  if(val == NULL)
-    return;
-
-  mul = atof(val);
-  opera_clock_cpu_set_freq_mul(mul);
-}
-
-static
-void
-chkopt_vdlp_pixel_format(void)
-{
-  const char *val;
-
-  if(g_PIXEL_FORMAT_SET)
-    return;
-
-  val = chkopt_getval("vdlp_pixel_format");
-  if(val == NULL)
-    return;
-
-  if(!strcmp(val,"XRGB8888"))
-    g_VDLP_PIXEL_FORMAT = VDLP_PIXEL_FORMAT_XRGB8888;
-  else if(!strcmp(val,"RGB565"))
-    g_VDLP_PIXEL_FORMAT = VDLP_PIXEL_FORMAT_RGB565;
-  else if(!strcmp(val,"0RGB1555"))
-    g_VDLP_PIXEL_FORMAT = VDLP_PIXEL_FORMAT_0RGB1555;
-
-  g_PIXEL_FORMAT_SET = true;
-}
-
-static
-void
-chkopt_vdlp_bypass_clut(void)
-{
-  chkopt_set_reset_bits("vdlp_bypass_clut",
-                        &g_VDLP_FLAGS,
-                        VDLP_FLAG_CLUT_BYPASS);
-}
-
-static
-bool
-chkopt_nvram_per_game(void)
-{
-  const char *val;
-
-  val = chkopt_getval("nvram_storage");
-  if(val == NULL)
-    return true;
-
-  return (strcmp(val,"per game") == 0);
-}
-
-static
-bool
-chkopt_nvram_shared(void)
-{
-  return !chkopt_nvram_per_game();
-}
-
-static
-void
-chkopt_active_devices(void)
-{
-  const char *val;
-
-  ACTIVE_DEVICES = 1;
-
-  val = chkopt_getval("active_devices");
-  if(val != NULL)
-    ACTIVE_DEVICES = atoi(val);
-
-  if(ACTIVE_DEVICES > LR_INPUT_MAX_DEVICES)
-    ACTIVE_DEVICES = 1;
-}
-
-static
-void
-chkopt_madam_matrix_engine(void)
-{
-  const char *val;
-
-  val = chkopt_getval("madam_matrix_engine");
-  if(val == NULL)
-    return;
-
-  if(!strcmp(val,"software"))
-    opera_madam_me_mode_software();
-  else
-    opera_madam_me_mode_hardware();
-}
-
-static
-void
-chkopt_kprint(void)
-{
-  bool rv;
-
-  rv = chkopt_is_enabled("kprint");
-
-  if(rv)
-    opera_madam_kprint_enable();
-  else
-    opera_madam_kprint_disable();
-}
-
-static
-void
-chkopt_dsp_threaded(void)
-{
-  bool rv;
-
-  rv = chkopt_is_enabled("dsp_threaded");
-
-  lr_dsp_init(rv);
-}
-
-static
-void
-chkopt_swi_hle(void)
-{
-  bool rv;
-
-  rv = chkopt_is_enabled("swi_hle");
-
-  opera_arm_swi_hle_set(rv);
-}
-
-static
-void
-chkopts(void)
-{
-  chkopt_bios();
-  chkopt_font();
-  chkopt_region();
-  chkopt_vdlp_pixel_format();
-  chkopt_vdlp_bypass_clut();
-  chkopt_high_resolution();
-  chkopt_cpu_overclock();
-  chkopt_dsp_threaded();
-  chkopt_active_devices();
-  chkopt_kprint();
-  chkopt_madam_matrix_engine();
-  chkopt_swi_hle();
-  chkopt_set_reset_bits("hack_timing_1",&FIXMODE,FIX_BIT_TIMING_1);
-  chkopt_set_reset_bits("hack_timing_3",&FIXMODE,FIX_BIT_TIMING_3);
-  chkopt_set_reset_bits("hack_timing_5",&FIXMODE,FIX_BIT_TIMING_5);
-  chkopt_set_reset_bits("hack_timing_6",&FIXMODE,FIX_BIT_TIMING_6);
-  chkopt_set_reset_bits("hack_graphics_step_y",&FIXMODE,FIX_BIT_GRAPHICS_STEP_Y);
-
-  opera_vdlp_configure(g_VIDEO_BUFFER,g_VDLP_PIXEL_FORMAT,g_VDLP_FLAGS);
 }
 
 void
@@ -558,103 +248,10 @@ retro_set_controller_port_device(unsigned port_,
 }
 
 static
-int64_t
-read_file_from_system_directory(const char *filename_,
-                                uint8_t    *data_,
-                                int64_t     size_)
-{
-  int64_t rv;
-  RFILE *file;
-  char fullpath[PATH_MAX_LENGTH];
-  const char *system_path;
-
-  system_path = NULL;
-  rv = retro_environment_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY,&system_path);
-  if((rv == 0) || (system_path == NULL))
-    return -1;
-
-  fill_pathname_join(fullpath,system_path,filename_,PATH_MAX_LENGTH);
-
-  file = filestream_open(fullpath,
-                         RETRO_VFS_FILE_ACCESS_READ,
-                         RETRO_VFS_FILE_ACCESS_HINT_NONE);
-  if(file == NULL)
-    return -1;
-
-  rv = filestream_read(file,data_,size_);
-
-  filestream_close(file);
-
-  return rv;
-}
-
-static
-int
-load_rom1(void)
-{
-  uint8_t *rom;
-  int64_t  size;
-  int64_t  rv;
-
-  if((BIOS == NULL) || (BIOS == opera_bios_end()))
-    {
-      retro_log_printf_cb(RETRO_LOG_ERROR,"[Opera]: no BIOS ROM found\n");
-      return -1;
-    }
-
-  rom  = opera_arm_rom1_get();
-  size = opera_arm_rom1_size();
-
-  rv = read_file_from_system_directory(BIOS->filename,rom,size);
-  if(rv < 0)
-    {
-      retro_log_printf_cb(RETRO_LOG_ERROR,
-                          "[Opera]: unable to find or load BIOS ROM - %s\n",
-                          BIOS->filename);
-      return -1;
-    }
-
-  opera_arm_rom1_byteswap_if_necessary();
-
-  return 0;
-}
-
-static
-int
-load_rom2(void)
-{
-  uint8_t *rom;
-  int64_t  size;
-  int64_t  rv;
-
-  rom  = opera_arm_rom2_get();
-  size = opera_arm_rom2_size();
-
-  if((FONT == NULL) || (FONT == opera_bios_font_end()))
-    {
-      memset(rom,0,size);
-      return 0;
-    }
-
-  rv = read_file_from_system_directory(FONT->filename,rom,size);
-  if(rv < 0)
-    {
-      retro_log_printf_cb(RETRO_LOG_ERROR,
-                          "[Opera]: unable to find or load FONT ROM - %s\n",
-                          BIOS->filename);
-      return -1;
-    }
-
-  opera_arm_rom2_byteswap_if_necessary();
-
-  return 0;
-}
-
-static
 enum retro_pixel_format
 vdlp_pixel_format_to_libretro(vdlp_pixel_format_e pf_)
 {
-  switch(pf_)
+  switch (pf_)
     {
     case VDLP_PIXEL_FORMAT_0RGB1555:
       return RETRO_PIXEL_FORMAT_0RGB1555;
@@ -674,25 +271,13 @@ set_pixel_format(void)
   int rv;
   enum retro_pixel_format fmt;
 
-  fmt = vdlp_pixel_format_to_libretro(g_VDLP_PIXEL_FORMAT);
-  rv = retro_environment_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT,&fmt);
+  fmt = vdlp_pixel_format_to_libretro(g_OPTS.vdlp_pixel_format);
+  rv  = retro_environment_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT,&fmt);
   if(rv == 0)
     {
       retro_log_printf_cb(RETRO_LOG_ERROR,
                           "[Opera]: pixel format is not supported.\n");
       return -1;
-    }
-
-  switch(fmt)
-    {
-    case RETRO_PIXEL_FORMAT_XRGB8888:
-      g_VIDEO_PITCH_SHIFT = 2;
-      break;
-    default:
-    case RETRO_PIXEL_FORMAT_RGB565:
-    case RETRO_PIXEL_FORMAT_0RGB1555:
-      g_VIDEO_PITCH_SHIFT = 1;
-      break;
     }
 
   return 0;
@@ -714,7 +299,7 @@ open_cdimage_if_needed(const struct retro_game_info *info_)
 {
   int rv;
 
-  if(info_ == NULL)
+  if(!info_)
     return 0;
 
   rv = retro_cdimage_open(info_->path,&CDIMAGE);
@@ -724,29 +309,61 @@ open_cdimage_if_needed(const struct retro_game_info *info_)
   return 0;
 }
 
+static
+void
+game_info_path_free(void)
+{
+  if(g_GAME_INFO_PATH == NULL)
+    return;
+
+  free(g_GAME_INFO_PATH);
+  g_GAME_INFO_PATH = NULL;
+}
+
+static
+void
+game_info_path_save(const struct retro_game_info *info_)
+{
+  size_t len;
+
+  game_info_path_free();
+
+  if((info_ == NULL) || (info_->path == NULL))
+    return;
+
+  g_GAME_INFO_PATH = strdup(info_->path);
+}
+
+static
+const
+char*
+game_info_path_get(void)
+{
+  return g_GAME_INFO_PATH;
+}
+
 bool
 retro_load_game(const struct retro_game_info *info_)
 {
   int rv;
 
+  game_info_path_save(info_);
+
   rv = open_cdimage_if_needed(info_);
   if(rv == -1)
     return false;
 
-  cdimage_set_sector(0);
+  opera_lr_opts_process();
   opera_3do_init(libopera_callback);
-  video_init();
-  chkopts();
-  load_rom1();
-  load_rom2();
+  cdimage_set_sector(0);
 
   rv = set_pixel_format();
-  if(rv == -1)
+  if(rv < 0)
     return false;
 
-  nvram_init(opera_arm_nvram_get());
-  if(chkopt_nvram_shared())
-    retro_nvram_load(opera_arm_nvram_get());
+  opera_lr_nvram_load(game_info_path_get(),
+                      g_OPTS.nvram_shared,
+                      g_OPTS.nvram_version);
 
   return true;
 }
@@ -756,25 +373,22 @@ retro_load_game_special(unsigned                      game_type_,
                         const struct retro_game_info *info_,
                         size_t                        num_info_)
 {
-  (void)game_type_;
-  (void)info_;
-  (void)num_info_;
-
   return false;
 }
 
 void
 retro_unload_game(void)
 {
-  if(chkopt_nvram_shared())
-    retro_nvram_save(opera_arm_nvram_get());
+  opera_lr_nvram_save(game_info_path_get(),
+                      g_OPTS.nvram_shared,
+                      g_OPTS.nvram_version);
+  game_info_path_free();
 
-  lr_dsp_destroy();
   opera_3do_destroy();
 
   retro_cdimage_close(&CDIMAGE);
 
-  video_destroy();
+  opera_lr_opts_reset();
 }
 
 void
@@ -784,10 +398,10 @@ retro_get_system_av_info(struct retro_system_av_info *info_)
 
   info_->timing.fps            = opera_region_field_rate();
   info_->timing.sample_rate    = 44100;
-  info_->geometry.base_width   = g_VIDEO_WIDTH;
-  info_->geometry.base_height  = g_VIDEO_HEIGHT;
-  info_->geometry.max_width    = (opera_region_max_width()  << 1);
-  info_->geometry.max_height   = (opera_region_max_height() << 1);
+  info_->geometry.base_width   = opera_region_min_width();
+  info_->geometry.base_height  = opera_region_min_height();
+  info_->geometry.max_width    = (opera_region_max_width()  * 2);
+  info_->geometry.max_height   = (opera_region_max_height() * 2);
   info_->geometry.aspect_ratio = 4.0 / 3.0;
 }
 
@@ -801,8 +415,10 @@ retro_get_region(void)
       return RETRO_REGION_PAL;
     case OPERA_REGION_NTSC:
     default:
-      return RETRO_REGION_NTSC;
+      break;
     }
+
+  return RETRO_REGION_NTSC;
 }
 
 unsigned
@@ -817,13 +433,11 @@ retro_get_memory_data(unsigned id_)
   switch(id_)
     {
     case RETRO_MEMORY_SAVE_RAM:
-      if(chkopt_nvram_shared())
-        return NULL;
-      return opera_arm_nvram_get();
+      return NULL;
     case RETRO_MEMORY_SYSTEM_RAM:
-      return opera_arm_ram_get();
+      return DRAM;
     case RETRO_MEMORY_VIDEO_RAM:
-      return opera_arm_vram_get();
+      return VRAM;
     }
 
   return NULL;
@@ -835,13 +449,11 @@ retro_get_memory_size(unsigned id_)
   switch(id_)
     {
     case RETRO_MEMORY_SAVE_RAM:
-      if(chkopt_nvram_shared())
-        return 0;
-      return opera_arm_nvram_size();
+      return 0;
     case RETRO_MEMORY_SYSTEM_RAM:
-      return opera_arm_ram_size();
+      return DRAM_SIZE;
     case RETRO_MEMORY_VIDEO_RAM:
-      return opera_arm_vram_size();
+      return VRAM_SIZE;
     }
 
   return 0;
@@ -850,15 +462,19 @@ retro_get_memory_size(unsigned id_)
 void
 retro_init(void)
 {
+  struct retro_log_callback log;
   unsigned level;
   uint64_t serialization_quirks;
-  struct retro_log_callback log;
 
   level = 5;
-  serialization_quirks = RETRO_SERIALIZATION_QUIRK_SINGLE_SESSION;
+  serialization_quirks = (RETRO_SERIALIZATION_QUIRK_ENDIAN_DEPENDENT |
+                          RETRO_SERIALIZATION_QUIRK_PLATFORM_DEPENDENT);
 
   if(retro_environment_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE,&log))
-    retro_set_log_printf_cb(log.log);
+    {
+      opera_lr_callbacks_set_log_printf(log.log);
+      opera_log_set_func(log.log);
+    }
 
   retro_environment_cb(RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL,&level);
   retro_environment_cb(RETRO_ENVIRONMENT_SET_SERIALIZATION_QUIRKS,&serialization_quirks);
@@ -866,6 +482,10 @@ retro_init(void)
   opera_cdrom_set_callbacks(cdimage_get_size,
                             cdimage_set_sector,
                             cdimage_read_sector);
+
+  srand(time(NULL));
+  prng16_seed(time(NULL));
+  prng32_seed(time(NULL));
 }
 
 void
@@ -877,42 +497,72 @@ retro_deinit(void)
 void
 retro_reset(void)
 {
-  if(chkopt_nvram_shared())
-    retro_nvram_save(opera_arm_nvram_get());
+  opera_lr_nvram_save(game_info_path_get(),
+                      g_OPTS.nvram_shared,
+                      g_OPTS.nvram_version);
 
-  lr_dsp_destroy();
+
   opera_3do_destroy();
+  opera_lr_opts_reset();
 
+  opera_lr_opts_process();
   opera_3do_init(libopera_callback);
-  video_init();
-  chkopts();
   cdimage_set_sector(0);
-  load_rom1();
-  load_rom2();
 
-  /* XXX: Is this really a frontend responsibility? */
-  nvram_init(opera_arm_nvram_get());
-  if(chkopt_nvram_shared())
-    retro_nvram_load(opera_arm_nvram_get());
+  opera_lr_nvram_load(game_info_path_get(),
+                      g_OPTS.nvram_shared,
+                      g_OPTS.nvram_version);
+}
+
+static
+bool
+variable_updated()
+{
+  bool updated;
+
+  updated = false;
+  if(!retro_environment_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE,&updated))
+    return false;
+  return updated;
+}
+
+static
+void
+process_opts_if_updated()
+{
+  if(!variable_updated())
+    return;
+
+  opera_lr_opts_process();
+}
+
+static
+void
+draw_crosshairs_if_enabled()
+{
+  if(g_OPTS.hide_lightgun_crosshairs)
+    return;
+
+  lr_input_crosshairs_draw(g_OPTS.video_buffer,
+                           g_OPTS.video_width,
+                           g_OPTS.video_height);
 }
 
 void
 retro_run(void)
 {
-  bool updated = false;
-  if(retro_environment_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE,&updated) && updated)
-    chkopts();
+  process_opts_if_updated();
 
-  lr_input_update(ACTIVE_DEVICES);
+  lr_input_update(g_OPTS.active_devices);
 
   opera_3do_process_frame();
 
-  lr_input_crosshairs_draw(g_VIDEO_BUFFER,g_VIDEO_WIDTH,g_VIDEO_HEIGHT);
+  draw_crosshairs_if_enabled();
 
-  lr_dsp_upload();
+  opera_lr_dsp_upload();
 
-  retro_video_refresh_cb(g_VIDEO_BUFFER,
-                         g_VIDEO_WIDTH,
-                         g_VIDEO_HEIGHT,
-                         g_VIDEO_WIDTH << g_VIDEO_PITCH_SHIFT);
+  retro_video_refresh_cb(g_OPTS.video_buffer,
+                         g_OPTS.video_width,
+                         g_OPTS.video_height,
+                         g_OPTS.video_width << g_OPTS.video_pitch_shift);
 }

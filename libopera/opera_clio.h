@@ -35,6 +35,9 @@
 
 #include <stdint.h>
 
+#define ADBIO_OTHERROM    0x04
+#define ADBIO_OTHERROM_EN (ADBIO_OTHERROM << 4)
+
 EXTERN_C_BEGIN
 
 void     opera_clio_init(int reason_);
@@ -63,8 +66,8 @@ uint32_t opera_clio_timer_get_delay(void);
 void     opera_clio_timer_execute(void);
 
 uint32_t opera_clio_state_size(void);
-void     opera_clio_state_save(void *buf_);
-void     opera_clio_state_load(const void *buf_);
+uint32_t opera_clio_state_save(void *buf_);
+uint32_t opera_clio_state_load(const void *buf_);
 
 EXTERN_C_END
 
